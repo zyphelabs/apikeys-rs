@@ -2,6 +2,10 @@
 name = "apikeys-rs"
 version = "0.1.0"
 edition = "2021"
+description = "Apikeys-rs is a comprehensive toolkit designed to streamline API key management for your backend services"
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/iltumio/apikeys-rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
