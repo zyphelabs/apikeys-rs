@@ -11,7 +11,11 @@ pub struct MongoDBStorage {
 }
 
 impl MongoDBStorage {
-    pub async fn new(uri: &str, db_name: &str, collection_name: Option<String>) -> Result<Self, mongodb::error::Error> {
+    pub async fn new(
+        uri: &str,
+        db_name: &str,
+        collection_name: Option<String>,
+    ) -> Result<Self, mongodb::error::Error> {
         let client_options = ClientOptions::parse(uri).await?;
         let client = Client::with_options(client_options)?;
         let db = client.database(db_name);
@@ -28,12 +32,16 @@ impl MongoDBStorage {
 
 #[async_trait]
 impl ApiKeyStorage for MongoDBStorage {
-    async fn store_api_key(&mut self, key: &str, value: &ApiKey) -> Result<String, ApiKeyStorageError> {
+    async fn store_api_key(
+        &mut self,
+        key: &str,
+        value: &ApiKey,
+    ) -> Result<String, ApiKeyStorageError> {
         let collection = self.db.collection::<ApiKey>(self.collection_name.as_str());
 
         let filter = doc! { "key": key };
 
-        match collection.find_one(filter, None).await {
+        match collection.find_one(filter).await {
             Ok(result) => {
                 if result.is_some() {
                     return Err(ApiKeyStorageError::KeyAlreadyExists);
@@ -42,7 +50,7 @@ impl ApiKeyStorage for MongoDBStorage {
             Err(e) => return Err(ApiKeyStorageError::StorageError(e.to_string())),
         }
 
-        match collection.insert_one(value, None).await {
+        match collection.insert_one(value).await {
             Ok(result) => result,
             Err(e) => return Err(ApiKeyStorageError::StorageError(e.to_string())),
         };
@@ -55,7 +63,7 @@ impl ApiKeyStorage for MongoDBStorage {
 
         let filter = doc! { "key": key };
 
-        let result = collection.find_one(filter, None).await;
+        let result = collection.find_one(filter).await;
 
         let api_key = match result {
             Ok(result) => match result {
@@ -73,7 +81,7 @@ impl ApiKeyStorage for MongoDBStorage {
 
         let filter = doc! { "key": key };
 
-        let result = collection.delete_one(filter, None).await;
+        let result = collection.delete_one(filter).await;
 
         match result {
             Ok(result) => Ok(result.deleted_count > 0),

@@ -25,7 +25,7 @@ impl ApiKeyLimiter for RedisLimiter {
     async fn use_key(&self, api_key: &ApiKey) -> Result<(), ApiKeyLimiterError> {
         match api_key.limits.max_reads_per_minute {
             ApiKeyLimit::Limited(max_reads_per_minute) => {
-                let mut connection = self.redis_client.get_async_connection().await?;
+                let mut connection = self.redis_client.get_multiplexed_async_connection().await?;
 
                 let key = format!("{}_read_count", api_key.key);
 
